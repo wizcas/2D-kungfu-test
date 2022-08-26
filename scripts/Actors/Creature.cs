@@ -87,7 +87,7 @@ public class Creature : KinematicBody2D, IHittable
     var to = GlobalPosition - origin;
     hp = Mathf.CeilToInt(hp - power);
     _dir = to.Normalized();
-    // _speed = power;
+    _speed = power;
     GD.Print($"{Name} is hit, power: {power}, dir: {_dir}, speed: {_speed}");
   }
 

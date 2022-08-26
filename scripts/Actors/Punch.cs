@@ -28,7 +28,7 @@ public class Punch : Node2D, IWeapon
     _owner = owner;
   }
 
-  public void Play(Vector2 dir)
+  public void Perform(Vector2 dir)
   {
     _dir = dir;
     _anim.Play("hit");
@@ -41,6 +41,10 @@ public class Punch : Node2D, IWeapon
     {
       (body as IHittable).OnHit(GlobalPosition, power);
     }
+    else if (body is TileMap)
+    {
+      pc?.ForceMove(-_dir * 2, .05f);
+    }
   }
 
   public void Dash()
@@ -49,6 +53,6 @@ public class Punch : Node2D, IWeapon
     {
       return;
     }
-    pc?.Dash(_dir * 6, .1f);
+    pc?.ForceMove(_dir * 6, .15f);
   }
 }

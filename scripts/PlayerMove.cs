@@ -44,7 +44,7 @@ public class PlayerMove : KinematicBody2D
     _holdTime = time;
   }
 
-  public void Dash(Vector2 v, float time)
+  public void ForceMove(Vector2 v, float time)
   {
     _forceVelocity = v / time;
     _forceTime = time;

@@ -45,7 +45,7 @@ public class PlayerAttack : Node2D
     if (OS.GetTicksMsec() >= _nextAttackTime)
     {
       _nextAttackTime = OS.GetTicksMsec() + (ulong)Mathf.CeilToInt(cd * 1000);
-      _weapon.Play(dir);
+      _weapon.Perform(dir);
     }
   }
 
