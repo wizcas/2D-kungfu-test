@@ -12,14 +12,14 @@ public class PlayerAttack : Node2D
   [Export]
   public float frequency = 1;
 
-  private IAttack _attack;
+  private IWeapon _attack;
   private ulong _nextAttackTime = 0;
 
   private HashSet<ulong> _targets = new HashSet<ulong>();
 
   public override void _Ready()
   {
-    _attack = GetNode(attack) as IAttack;
+    _attack = GetNode(attack) as IWeapon;
     Input.MouseMode = Input.MouseModeEnum.Confined;
   }
   public override void _Process(float delta)
@@ -35,7 +35,7 @@ public class PlayerAttack : Node2D
 
   private void Attack()
   {
-    if (!(_attack is IAttack))
+    if (!(_attack is IWeapon))
     {
       GD.PrintErr($"not an IAttack", _attack, attack);
       return;

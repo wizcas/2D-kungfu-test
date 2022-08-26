@@ -1,6 +1,6 @@
 using Godot;
 
-public class Punch : Node2D, IAttack
+public class Punch : Node2D, IWeapon
 {
   [Export]
   public float power = 200;
