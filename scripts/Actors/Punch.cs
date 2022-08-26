@@ -53,6 +53,6 @@ public class Punch : Node2D, IWeapon
     {
       return;
     }
-    pc?.ForceMove(_dir * 6, .15f);
+    /* pc?.ForceMove(_dir * 6, .3f); */
   }
 }

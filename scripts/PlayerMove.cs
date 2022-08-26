@@ -44,11 +44,33 @@ public class PlayerMove : KinematicBody2D
     _holdTime = time;
   }
 
-  public void ForceMove(Vector2 v, float time)
+  public void ForceMove(Vector2 v, float time, bool jump = false)
   {
     _forceVelocity = v / time;
     _forceTime = time;
     GD.Print($"dest: {_forceVelocity} in {time}s");
+    if (jump)
+    {
+      Jump(time);
+    }
+  }
+
+  private void Jump(float time)
+  {
+    var anim = GetNode<AnimationPlayer>("Anim");
+    if (anim == null) return;
+    var upTime = anim.GetAnimation("jump-up").Length;
+    var downTime = anim.GetAnimation("jump-down").Length;
+    if (time < upTime + downTime) return;
+
+    anim.Play("jump-up");
+    GetTree().CreateTimer(time - downTime).Connect("timeout", this, nameof(OnJumpDown));
+  }
+  private void OnJumpDown()
+  {
+    var anim = GetNode<AnimationPlayer>("Anim");
+    if (anim == null) return;
+    anim.Play("jump-down");
   }
 
   private Vector2 ComputeWalkInput()
