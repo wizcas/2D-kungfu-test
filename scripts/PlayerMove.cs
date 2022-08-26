@@ -15,6 +15,7 @@ public class PlayerMove : KinematicBody2D
   public override void _PhysicsProcess(float delta)
   {
     MoveAndSlide(ComputeVelocityByInput());
+    ZIndex = (int)Position.y;
   }
 
   private Vector2 ComputeVelocityByInput()

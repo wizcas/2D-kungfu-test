@@ -3,18 +3,42 @@ using Godot;
 
 public class Creature : KinematicBody2D, IHittable
 {
+  [Export]
+  public int maxHp = 500;
+  [Export]
+  public int hp
+  {
+    get { return _hp; }
+    set
+    {
+      _hp = value;
+      EmitSignal(nameof(HpChanged), _hp, maxHp);
+    }
+  }
+
+  [Signal]
+  public delegate void HpChanged(int hp, int maxHp);
+
+  private int _hp = 0;
   private Vector2 _dir = Vector2.Zero;
   private float _speed = 0;
-  private float _friction = 80;
+  private float _friction = 150;
 
   // Called when the node enters the scene tree for the first time.
   public override void _Ready()
   {
-    // GetNode("../PC/Attack").Connect("Attacking", this, "OnPlayerAttacking");
+    hp = maxHp;
   }
 
   public override void _PhysicsProcess(float delta)
   {
+    if (_speed <= 0)
+    {
+      if (hp <= 0)
+      {
+        Die();
+      }
+    }
     if (_speed > 0)
     {
       var c = MoveAndCollide(_dir * _speed * delta);
@@ -34,6 +58,7 @@ public class Creature : KinematicBody2D, IHittable
         _speed = 0;
       }
     }
+    ZIndex = (int)Position.y;
   }
 
   private void CollideWithTile(KinematicCollision2D collision)
@@ -57,19 +82,6 @@ public class Creature : KinematicBody2D, IHittable
     return speed - _friction * delta;
   }
 
-  public void OnPlayerAttacking(Vector2 origin, Vector2 dir, float power)
-  {
-    var to = GlobalPosition - origin;
-    var dist = to.Length();
-    GD.Print($"attacked, dist: {dist}");
-    if (dist < 32)
-    {
-      _dir = to.Normalized();
-      _speed = power;
-      GD.Print($"dir: {_dir}, power: {_speed}");
-    }
-  }
-
   public void OnHit(Vector2 origin, float power)
   {
     var to = GlobalPosition - origin;
@@ -77,9 +89,15 @@ public class Creature : KinematicBody2D, IHittable
     GD.Print($"{Name} on hit called, distance: {dist}, power: {power}");
     if (dist < 32)
     {
+      hp = Mathf.CeilToInt(hp - power);
       _dir = to.Normalized();
       _speed = power;
       GD.Print($"{Name} is hit, power: {power}, dir: {_dir}, speed: {_speed}");
     }
+  }
+
+  public void Die()
+  {
+    QueueFree();
   }
 }
