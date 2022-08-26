@@ -454,7 +454,7 @@ tracks/0/keys = {
 
 [sub_resource type="Animation" id=88]
 resource_name = "hit"
-length = 0.3
+length = 0.4
 step = 0.05
 tracks/0/type = "value"
 tracks/0/path = NodePath(".:position")
@@ -463,10 +463,10 @@ tracks/0/loop_wrap = true
 tracks/0/imported = false
 tracks/0/enabled = true
 tracks/0/keys = {
-"times": PoolRealArray( 0, 0.15, 0.225654, 0.3 ),
-"transitions": PoolRealArray( 1, 2.21914, 2.82844, 0.535887 ),
+"times": PoolRealArray( 0, 0.124265, 0.168135, 0.32, 0.4 ),
+"transitions": PoolRealArray( 1, 2.21914, 2.82844, 0.535887, 1 ),
 "update": 0,
-"values": [ Vector2( 0, -6 ), Vector2( 0, -3 ), Vector2( 0, -12 ), Vector2( 0, -6 ) ]
+"values": [ Vector2( 0, -6 ), Vector2( 0, -3 ), Vector2( 0, -12 ), Vector2( 0, -12 ), Vector2( 0, -6 ) ]
 }
 tracks/1/type = "value"
 tracks/1/path = NodePath(".:monitoring")
@@ -475,10 +475,24 @@ tracks/1/loop_wrap = true
 tracks/1/imported = false
 tracks/1/enabled = true
 tracks/1/keys = {
-"times": PoolRealArray( 0.207882, 0.236476 ),
+"times": PoolRealArray( 0.17, 0.32 ),
 "transitions": PoolRealArray( 1, 1 ),
 "update": 1,
 "values": [ true, false ]
+}
+tracks/2/type = "method"
+tracks/2/path = NodePath("..")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0.17 ),
+"transitions": PoolRealArray( 1 ),
+"values": [ {
+"args": [  ],
+"method": "Dash"
+} ]
 }
 
 [sub_resource type="AtlasTexture" id=79]
@@ -496,7 +510,7 @@ gradient = SubResource( 82 )
 width = 16
 
 [sub_resource type="Gradient" id=84]
-colors = PoolColorArray( 0.278809, 0, 0, 1, 0.958496, 0.309461, 0.145017, 1 )
+colors = PoolColorArray( 0.767578, 0, 0, 1, 0.958496, 0.309461, 0.145017, 1 )
 
 [sub_resource type="GradientTexture" id=85]
 gradient = SubResource( 84 )
@@ -528,34 +542,29 @@ color = Color( 0.84, 0.84, 0.84, 1 )
 
 [node name="PC" parent="." instance=ExtResource( 2 )]
 position = Vector2( 56, 89 )
-speed = 64.0
 
 [node name="Camera2D" type="Camera2D" parent="PC"]
 current = true
 
-[node name="Weapon" type="Node2D" parent="PC"]
+[node name="Attack" type="Node2D" parent="PC"]
 script = ExtResource( 6 )
-attack = NodePath("Punch")
+weapon = NodePath("Punch")
 
-[node name="Punch" type="Node2D" parent="PC/Weapon"]
+[node name="Punch" type="Node2D" parent="PC/Attack"]
 script = ExtResource( 10 )
 
-[node name="PunchHit" type="Area2D" parent="PC/Weapon/Punch"]
+[node name="PunchHit" type="Area2D" parent="PC/Attack/Punch"]
 position = Vector2( 0, -3 )
 monitoring = false
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="PC/Weapon/Punch/PunchHit"]
-position = Vector2( 0, -6 )
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PC/Attack/Punch/PunchHit"]
 shape = SubResource( 87 )
 
-[node name="Sprite" type="Sprite" parent="PC/Weapon/Punch/PunchHit"]
-position = Vector2( 0, -6 )
+[node name="Sprite" type="Sprite" parent="PC/Attack/Punch/PunchHit"]
 scale = Vector2( 0.01, 0.01 )
 texture = ExtResource( 9 )
 
-[node name="Node2D" type="Node2D" parent="PC/Weapon/Punch/PunchHit"]
-
-[node name="Anim" type="AnimationPlayer" parent="PC/Weapon/Punch"]
+[node name="Anim" type="AnimationPlayer" parent="PC/Attack/Punch"]
 root_node = NodePath("../PunchHit")
 anims/RESET = SubResource( 89 )
 anims/hit = SubResource( 88 )
@@ -604,5 +613,5 @@ text = "Bad guy"
 align = 1
 valign = 2
 
-[connection signal="body_entered" from="PC/Weapon/Punch/PunchHit" to="PC/Weapon/Punch" method="OnBodyEntered"]
+[connection signal="body_entered" from="PC/Attack/Punch/PunchHit" to="PC/Attack/Punch" method="OnBodyEntered"]
 [connection signal="HpChanged" from="Foe" to="Foe/GUI" method="OnSelfHpChanged"]

@@ -85,15 +85,10 @@ public class Creature : KinematicBody2D, IHittable
   public void OnHit(Vector2 origin, float power)
   {
     var to = GlobalPosition - origin;
-    var dist = to.Length();
-    GD.Print($"{Name} on hit called, distance: {dist}, power: {power}");
-    if (dist < 32)
-    {
-      hp = Mathf.CeilToInt(hp - power);
-      _dir = to.Normalized();
-      _speed = power;
-      GD.Print($"{Name} is hit, power: {power}, dir: {_dir}, speed: {_speed}");
-    }
+    hp = Mathf.CeilToInt(hp - power);
+    _dir = to.Normalized();
+    // _speed = power;
+    GD.Print($"{Name} is hit, power: {power}, dir: {_dir}, speed: {_speed}");
   }
 
   public void Die()

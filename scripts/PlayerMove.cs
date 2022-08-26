@@ -4,8 +4,13 @@ using Godot;
 public class PlayerMove : KinematicBody2D
 {
   [Export]
-  public float speed = 64;
+  public float walkSpeed = 64;
+  [Export]
+  public float dashSpeed = 128;
   private Vector2 _dir = Vector2.Zero;
+
+  private Vector2 _forceVelocity = Vector2.Zero;
+  private float _forceTime = 0;
 
   // Called when the node enters the scene tree for the first time.
   public override void _Ready()
@@ -14,11 +19,27 @@ public class PlayerMove : KinematicBody2D
 
   public override void _PhysicsProcess(float delta)
   {
-    MoveAndSlide(ComputeVelocityByInput());
+    if (_forceTime > 0)
+    {
+      _forceTime -= delta;
+      GD.Print($"force moving: {_forceVelocity} in {_forceTime}s");
+      MoveAndCollide(_forceVelocity * delta);
+    }
+    else
+    {
+      MoveAndSlide(ComputeWalkInput());
+    }
     ZIndex = (int)Position.y;
   }
 
-  private Vector2 ComputeVelocityByInput()
+  public void Dash(Vector2 v, float time)
+  {
+    _forceVelocity = v / time;
+    _forceTime = time;
+    GD.Print($"dest: {_forceVelocity} in {time}s");
+  }
+
+  private Vector2 ComputeWalkInput()
   {
     var dir = Vector2.Zero;
     if (Input.IsActionPressed(InputNames.MOVE_UP))
@@ -37,7 +58,7 @@ public class PlayerMove : KinematicBody2D
     {
       dir.x++;
     }
-    dir = dir.Normalized() * speed;
+    dir = dir.Normalized() * walkSpeed;
     return dir;
   }
 }
