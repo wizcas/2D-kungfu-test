@@ -1,56 +1,57 @@
 using System.Collections.Generic;
 using Godot;
 
-public class PlayerAttack : Area2D
+public class PlayerAttack : Node2D
 {
   [Signal]
   public delegate void Attacking(Vector2 origin, Vector2 dir, float power);
 
+  [Export]
+  public NodePath attack;
+
+  [Export]
+  public float frequency = 1;
+
+  private IAttack _attack;
+  private ulong _nextAttackTime = 0;
+
   private HashSet<ulong> _targets = new HashSet<ulong>();
 
-  public override void _UnhandledInput(InputEvent e)
+  public override void _Ready()
   {
-    if (e.IsActionPressed("attack"))
+    _attack = GetNode(attack) as IAttack;
+    Input.MouseMode = Input.MouseModeEnum.Confined;
+  }
+  public override void _Process(float delta)
+  {
+    var dir = GetGlobalMousePosition() - GlobalPosition;
+    UpdateAttackDir(dir);
+
+    if (Input.IsActionPressed("attack"))
     {
       Attack();
     }
-
   }
 
   private void Attack()
   {
-    // EmitSignal(nameof(Attacking), GlobalPosition, Vector2.Zero, 256);
-    GD.Print("attacking");
-    foreach (var id in _targets)
+    if (!(_attack is IAttack))
     {
-      var target = GD.InstanceFromId(id);
-      if (target is IHittable)
-      {
-        (target as IHittable).OnHit(GlobalPosition, 256);
-      }
+      GD.PrintErr($"not an IAttack", _attack, attack);
+      return;
+    }
+
+    if (OS.GetTicksMsec() >= _nextAttackTime)
+    {
+      _nextAttackTime = OS.GetTicksMsec() + (ulong)Mathf.CeilToInt(1 / frequency * 1000);
+      _attack.Play();
     }
   }
 
-  public void OnBodyEnter(Node body)
+  private void UpdateAttackDir(Vector2 dir)
   {
-    if (body is IHittable)
-    {
-      var id = body.GetInstanceId();
-      if (!_targets.Contains(id))
-      {
-        _targets.Add(id);
-        GD.Print($"{body.Name} entered the attack range");
-      }
-    }
-  }
-
-  public void OnBodyLeave(Node body)
-  {
-    var id = body.GetInstanceId();
-    if (_targets.Contains(id))
-    {
-      _targets.Remove(id);
-      GD.Print($"{body.Name} has left the attach range");
-    }
+    var node = _attack as Node2D;
+    if (node == null) return;
+    node.Rotation = dir.Angle() + Mathf.Pi / 2;
   }
 }
