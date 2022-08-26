@@ -9,6 +9,15 @@ public class Punch : Node2D, IWeapon
   private Node2D _owner;
   private Vector2 _dir;
 
+  private PlayerMove pc
+  {
+    get
+    {
+      return _owner == null ? null :
+      _owner.GetNode("..") as PlayerMove;
+    }
+  }
+
   public override void _Ready()
   {
     _anim = GetNode<AnimationPlayer>("Anim");
@@ -23,6 +32,7 @@ public class Punch : Node2D, IWeapon
   {
     _dir = dir;
     _anim.Play("hit");
+    pc?.Hold(_anim.GetAnimation("hit").Length);
   }
 
   public void OnBodyEntered(Node body)
@@ -39,10 +49,6 @@ public class Punch : Node2D, IWeapon
     {
       return;
     }
-    var player = _owner.GetNode("..") as PlayerMove;
-    if (player != null)
-    {
-      player.Dash(_dir * 6, .1f);
-    }
+    pc?.Dash(_dir * 6, .1f);
   }
 }

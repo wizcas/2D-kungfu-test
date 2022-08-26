@@ -11,6 +11,7 @@ public class PlayerMove : KinematicBody2D
 
   private Vector2 _forceVelocity = Vector2.Zero;
   private float _forceTime = 0;
+  private float _holdTime = 0;
 
   // Called when the node enters the scene tree for the first time.
   public override void _Ready()
@@ -25,11 +26,22 @@ public class PlayerMove : KinematicBody2D
       GD.Print($"force moving: {_forceVelocity} in {_forceTime}s");
       MoveAndCollide(_forceVelocity * delta);
     }
-    else
+    if (_holdTime > 0)
+    {
+      _holdTime -= delta;
+    }
+
+    if (_forceTime <= 0 && _holdTime <= 0)
     {
       MoveAndSlide(ComputeWalkInput());
     }
+
     ZIndex = (int)Position.y;
+  }
+
+  public void Hold(float time)
+  {
+    _holdTime = time;
   }
 
   public void Dash(Vector2 v, float time)
