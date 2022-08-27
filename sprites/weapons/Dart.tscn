@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://sprites/weapons/FlyingKnife.tscn" type="PackedScene" id=1]
+[ext_resource path="res://scripts/actors/Dart.cs" type="Script" id=2]
+
+[node name="Dart" type="Node2D"]
+visible = false
+script = ExtResource( 2 )
+Projectile = ExtResource( 1 )
+Muzzle = NodePath("Muzzle")
+
+[node name="Muzzle" type="Node2D" parent="."]
+position = Vector2( 6, 0 )

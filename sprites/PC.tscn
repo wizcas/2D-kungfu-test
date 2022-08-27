@@ -1,16 +1,12 @@
-[gd_scene load_steps=34 format=2]
+[gd_scene load_steps=33 format=2]
 
 [ext_resource path="res://scripts/player/PlayerInput.cs" type="Script" id=1]
-[ext_resource path="res://resources/roguelikeChar_transparent.png" type="Texture" id=2]
 [ext_resource path="res://resources/light.png" type="Texture" id=3]
 [ext_resource path="res://scripts/player/Player.cs" type="Script" id=4]
 [ext_resource path="res://resources/Basic Charakter Spritesheet.png" type="Texture" id=5]
 [ext_resource path="res://sprites/weapons/Punch.tscn" type="PackedScene" id=6]
 [ext_resource path="res://scripts/player/PlayerAttack.cs" type="Script" id=7]
-
-[sub_resource type="AtlasTexture" id=48]
-atlas = ExtResource( 2 )
-region = Rect2( 0, 170, 16, 16 )
+[ext_resource path="res://sprites/weapons/Dart.tscn" type="PackedScene" id=8]
 
 [sub_resource type="AtlasTexture" id=57]
 atlas = ExtResource( 5 )
@@ -125,24 +121,12 @@ radius = 7.8
 [sub_resource type="Animation" id=50]
 length = 0.001
 tracks/0/type = "value"
-tracks/0/path = NodePath("Sprite:position")
+tracks/0/path = NodePath("Body:position")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/imported = false
 tracks/0/enabled = true
 tracks/0/keys = {
-"times": PoolRealArray( 0 ),
-"transitions": PoolRealArray( 1 ),
-"update": 0,
-"values": [ Vector2( 0, 0 ) ]
-}
-tracks/1/type = "value"
-tracks/1/path = NodePath("Body:position")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/keys = {
 "times": PoolRealArray( 0 ),
 "transitions": PoolRealArray( 1 ),
 "update": 0,
@@ -152,34 +136,10 @@ tracks/1/keys = {
 [sub_resource type="Animation" id=51]
 resource_name = "jump-down"
 length = 0.1
-tracks/0/type = "value"
-tracks/0/path = NodePath("Sprite:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/keys = {
-"times": PoolRealArray( 0, 0.1 ),
-"transitions": PoolRealArray( 2.21915, 0.241484 ),
-"update": 0,
-"values": [ Vector2( 0, -4 ), Vector2( 0, 0 ) ]
-}
 
 [sub_resource type="Animation" id=52]
 resource_name = "jump-up"
 length = 0.1
-tracks/0/type = "value"
-tracks/0/path = NodePath("Sprite:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/keys = {
-"times": PoolRealArray( 0, 0.1 ),
-"transitions": PoolRealArray( 0.241484, 0.105112 ),
-"update": 0,
-"values": [ Vector2( 0, 0 ), Vector2( 0, -4 ) ]
-}
 
 [sub_resource type="Animation" id=73]
 resource_name = "punch-e"
@@ -252,10 +212,6 @@ __meta__ = {
 "_edit_group_": true
 }
 
-[node name="Sprite" type="Sprite" parent="."]
-visible = false
-texture = SubResource( 48 )
-
 [node name="Body" type="AnimatedSprite" parent="."]
 scale = Vector2( 1.2, 1.2 )
 frames = SubResource( 56 )
@@ -287,9 +243,13 @@ anims/punch-w = SubResource( 72 )
 
 [node name="Attack" type="Node2D" parent="."]
 script = ExtResource( 7 )
-weapon = NodePath("Punch")
+Weapon = NodePath("Dart")
 
 [node name="Punch" parent="Attack" instance=ExtResource( 6 )]
+visible = false
+
+[node name="Dart" parent="Attack" instance=ExtResource( 8 )]
+visible = true
 
 [node name="PlayerInput" type="Node2D" parent="."]
 script = ExtResource( 1 )

@@ -195,10 +195,10 @@ public class Creature : KinematicBody2D, IHittable
     return velocity - velocity.Normalized() * _friction * delta;
   }
 
-  public void OnHit(Vector2 origin, float power)
+  public void OnHit(Vector2 globalOrigin, float power)
   {
     hp = Mathf.CeilToInt(hp - power);
-    var to = GlobalPosition - origin;
+    var to = GlobalPosition - globalOrigin;
     var v = to.Normalized() * power;
     PassiveMove(v);
     GD.Print($"{Name} is hit, power: {power}, dir: {to.Normalized()}, v: {v}");

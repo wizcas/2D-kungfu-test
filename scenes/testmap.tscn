@@ -458,7 +458,7 @@ outline_size = 1
 outline_color = Color( 0, 0, 0, 0.560784 )
 font_data = ExtResource( 8 )
 
-[node name="Node2D" type="Node2D"]
+[node name="SceneRoot" type="Node2D"]
 
 [node name="FloorTileMap" type="TileMap" parent="." groups=["world"]]
 tile_set = SubResource( 22 )
@@ -471,6 +471,8 @@ tile_set = SubResource( 22 )
 cell_size = Vector2( 16, 16 )
 cell_tile_origin = 1
 collision_friction = 0.0
+collision_layer = 8
+collision_mask = 3
 format = 1
 tile_data = PoolIntArray( 0, 0, 4, 1, 0, 2, 2, 0, 2, 3, 0, 2, 4, 0, 2, 5, 0, 2, 6, 0, 2, 7, 0, 2, 8, 0, 2, 9, 0, 5, 65536, 0, 65539, 65537, 0, 262145, 65538, 0, 262145, 65539, 0, 262145, 65540, 0, 262145, 65541, 0, 262145, 65542, 0, 262145, 65543, 0, 262145, 65544, 0, 262145, 65545, 0, 65539, 131072, 0, 65539, 131081, 0, 65539, 196608, 0, 65539, 196610, 0, 65537, 196617, 0, 65539, 262144, 0, 65539, 262146, 0, 262147, 262151, 0, 65537, 262153, 0, 65539, 327680, 0, 65539, 327687, 0, 262147, 327689, 0, 65539, 393216, 0, 65539, 393225, 0, 65539, 458752, 0, 65540, 458753, 0, 2, 458754, 0, 2, 458755, 0, 3, 458758, 0, 1, 458759, 0, 2, 458760, 0, 2, 458761, 0, 65541, 524288, 0, 262144, 524289, 0, 262145, 524290, 0, 262145, 524291, 0, 262146, 524294, 0, 262144, 524295, 0, 262145, 524296, 0, 262145, 524297, 0, 262146 )
 
@@ -482,6 +484,8 @@ position = Vector2( 56, 89 )
 
 [node name="Foe" type="KinematicBody2D" parent="." groups=["enemy"]]
 position = Vector2( 72, 72 )
+collision_layer = 2
+collision_mask = 11
 script = ExtResource( 4 )
 hp = 200
 

@@ -2,5 +2,5 @@ using Godot;
 
 public interface IHittable
 {
-  void OnHit(Vector2 origin, float power);
+  void OnHit(Vector2 globalOrigin, float power);
 }

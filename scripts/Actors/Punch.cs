@@ -3,7 +3,9 @@ using Godot;
 public class Punch : Node2D, IWeapon
 {
   [Export]
-  public float power = 200;
+  public float Power = 200;
+  [Export]
+  public float CD = .45f;
 
   private AnimationPlayer _anim;
   private Creature _owner;
@@ -31,7 +33,7 @@ public class Punch : Node2D, IWeapon
     GD.Print($"body {body.Name}, owner {_owner.Name}");
     if (body is IHittable && body != _owner && body.IsInGroup("enemy")) // todo: fix group
     {
-      (body as IHittable).OnHit(GlobalPosition, power);
+      (body as IHittable).OnHit(GlobalPosition, Power);
     }
     else if (body is TileMap)
     {
@@ -39,12 +41,8 @@ public class Punch : Node2D, IWeapon
     }
   }
 
-  public void Dash()
+  public float GetCoolDown()
   {
-    if (_owner == null || _dir == Vector2.Zero)
-    {
-      return;
-    }
-    /* pc?.ForceMove(_dir * 6, .3f); */
+    return CD;
   }
 }

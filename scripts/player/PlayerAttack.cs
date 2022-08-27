@@ -4,14 +4,8 @@ using Godot;
 
 public class PlayerAttack : Node2D
 {
-  [Signal]
-  public delegate void Attacking(Vector2 origin, Vector2 dir, float power);
-
   [Export]
-  public NodePath weapon;
-
-  [Export]
-  public float cd = .45f;
+  public NodePath Weapon;
 
   private Player _pc;
   private IWeapon _weapon;
@@ -19,7 +13,7 @@ public class PlayerAttack : Node2D
 
   public override void _Ready()
   {
-    _weapon = GetNode(weapon) as IWeapon;
+    _weapon = GetNode(Weapon) as IWeapon;
 
   }
   public override void _Process(float delta)
@@ -39,9 +33,9 @@ public class PlayerAttack : Node2D
   private void Attack(Vector2 dir)
   {
     _pc.PlayAnimation("punch");
-    if (OS.GetTicksMsec() >= _nextAttackTime)
+    if (OS.GetTicksMsec() >= _nextAttackTime && _weapon != null)
     {
-      _nextAttackTime = OS.GetTicksMsec() + (ulong)Mathf.CeilToInt(cd * 1000);
+      _nextAttackTime = OS.GetTicksMsec() + (ulong)Mathf.CeilToInt(_weapon.GetCoolDown() * 1000);
       _weapon.Perform(dir);
     }
   }
