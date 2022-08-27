@@ -47,5 +47,6 @@ public class PlayerAttack : Node2D
     var node = _weapon as Node2D;
     if (node == null) return;
     node.Rotation = dir.Angle();
+    GetNode<Creature>("..").LookDir = dir;
   }
 }

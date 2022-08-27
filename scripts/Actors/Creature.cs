@@ -11,14 +11,6 @@ public class Creature : KinematicBody2D, IHittable
     Dead,
   }
 
-  static class DirectionSuffix
-  {
-    public const string N = "n";
-    public const string S = "s";
-    public const string W = "w";
-    public const string E = "e";
-  }
-
   [Signal]
   public delegate void HpChanged(int hp, int maxHp);
 
@@ -35,8 +27,9 @@ public class Creature : KinematicBody2D, IHittable
     }
   }
   [Export]
-  public float walkSpeed = 64;
-  public PlayerInput input;
+  public float WalkSpeed = 64;
+  public PlayerInput Input;
+  public Vector2 LookDir = Vector2.Zero;
 
   private int _hp = 0;
   private Vector2 _velocity = Vector2.Zero;
@@ -44,23 +37,23 @@ public class Creature : KinematicBody2D, IHittable
   private float _friction;
   private State _state = State.Free;
   private AnimatedSprite _animSprite;
-  private string _dirSuffix = DirectionSuffix.S;
-  private string _spriteAnim = "Idle";
+  private string _dirSuffix = Directions.Suffix.S;
+  private string _spriteAnimName = "Idle";
 
 
   // Called when the node enters the scene tree for the first time.
   public override void _Ready()
   {
     hp = maxHp;
-    input = GetNodeOrNull<PlayerInput>("PlayerInput");
+    Input = GetNodeOrNull<PlayerInput>("PlayerInput");
     _animSprite = GetNodeOrNull<AnimatedSprite>("Body");
   }
 
   public override void _PhysicsProcess(float delta)
   {
-    if (input != null)
+    if (Input != null)
     {
-      input.Enabled = _state == State.Free;
+      Input.Enabled = _state == State.Free;
     }
     ZIndex = (int)Position.y;
 
@@ -95,7 +88,6 @@ public class Creature : KinematicBody2D, IHittable
           {
             _velocity = SlowDown(_velocity, delta);
           }
-
         }
         break;
       case State.ForceMoving:
@@ -112,14 +104,25 @@ public class Creature : KinematicBody2D, IHittable
         }
         break;
       case State.Free:
-        if (input != null)
+        if (Input != null)
         {
-          _velocity = input.ComputeInput(walkSpeed);
+          _velocity = Input.ComputeInput(WalkSpeed);
           MoveAndSlide(_velocity);
         }
         break;
     }
+
+    if (_velocity == Vector2.Zero)
+    {
+      _spriteAnimName = "Idle";
+    }
+    else
+    {
+      _spriteAnimName = "Walk";
+    }
+
     UpdateCurrentDirSuffix();
+    UpdateSpriteAnimation();
   }
   public void ForceMove(Vector2 v, float distance, bool jump = false)
   {
@@ -191,38 +194,24 @@ public class Creature : KinematicBody2D, IHittable
 
   public void Die()
   {
+    _state = State.Dead;
     QueueFree();
   }
   private void UpdateCurrentDirSuffix()
   {
-    var stopped = _velocity == Vector2.Zero;
-    string name;
+    var looking = LookDir != Vector2.Zero;
+    var dir = looking ? LookDir : _velocity.Normalized();
+    var stopped = dir == Vector2.Zero;
     if (!stopped && _state == State.Free)
     {
-      var rad = _velocity.Normalized().Angle();
-      if (rad >= -.2f * Mathf.Pi && rad <= .2f * Mathf.Pi)
-      {
-        _dirSuffix = DirectionSuffix.E;
-      }
-      else if (rad >= -.7f * Mathf.Pi && rad <= -.3f * Mathf.Pi)
-      {
-        _dirSuffix = DirectionSuffix.N;
-      }
-      else if (rad >= .8f * Mathf.Pi || rad <= -.8f * Mathf.Pi)
-      {
-        _dirSuffix = DirectionSuffix.W;
-      }
-      else if (rad >= .3f * Mathf.Pi && rad <= .7f * Mathf.Pi)
-      {
-        _dirSuffix = DirectionSuffix.S;
-      }
-      _spriteAnim = "Walk";
+      var rad = dir.Normalized().Angle();
+      _dirSuffix = Directions.ComputeSuffix(dir, !looking) ?? _dirSuffix;
     }
-    else
-    {
-      _spriteAnim = "Idle";
-    }
-    name = $"{_spriteAnim}-{_dirSuffix}";
+  }
+
+  private void UpdateSpriteAnimation()
+  {
+    var name = $"{_spriteAnimName}-{_dirSuffix}";
     if (_animSprite != null && name != _animSprite.Animation)
     {
       GD.Print($"playing: {name}");
