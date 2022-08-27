@@ -9,12 +9,11 @@ public class Punch : Node2D, IWeapon
   private Node2D _owner;
   private Vector2 _dir;
 
-  private PlayerMove pc
+  private Creature pc
   {
     get
     {
-      return _owner == null ? null :
-      _owner.GetNode("..") as PlayerMove;
+      return _owner == null ? null : _owner.GetNodeOrNull<Creature>("..");
     }
   }
 
@@ -32,7 +31,7 @@ public class Punch : Node2D, IWeapon
   {
     _dir = dir;
     _anim.Play("hit");
-    pc?.Hold(_anim.GetAnimation("hit").Length);
+    pc?.input?.Hold(_anim.GetAnimation("hit").Length);
   }
 
   public void OnBodyEntered(Node body)

@@ -3,13 +3,13 @@
 [ext_resource path="res://resources/roguelikeDungeon_transparent.png" type="Texture" id=1]
 [ext_resource path="res://sprites/PC.tscn" type="PackedScene" id=2]
 [ext_resource path="res://resources/roguelikeChar_transparent.png" type="Texture" id=3]
-[ext_resource path="res://scripts/Actors/Creature.cs" type="Script" id=4]
+[ext_resource path="res://scripts/actors/Creature.cs" type="Script" id=4]
 [ext_resource path="res://scenes/wall-occluder.tres" type="OccluderPolygon2D" id=5]
-[ext_resource path="res://scripts/PlayerAttack.cs" type="Script" id=6]
-[ext_resource path="res://scripts/Actors/CreatureGUI.cs" type="Script" id=7]
+[ext_resource path="res://scripts/player/PlayerAttack.cs" type="Script" id=6]
+[ext_resource path="res://scripts/actors/CreatureGUI.cs" type="Script" id=7]
 [ext_resource path="res://resources/Merchant Copy.ttf" type="DynamicFontData" id=8]
 [ext_resource path="res://resources/fist.png" type="Texture" id=9]
-[ext_resource path="res://scripts/Actors/Punch.cs" type="Script" id=10]
+[ext_resource path="res://scripts/actors/Punch.cs" type="Script" id=10]
 
 [sub_resource type="OccluderPolygon2D" id=77]
 polygon = PoolVector2Array( 0, 0, 16, 0, 16, 16, 0, 16 )
