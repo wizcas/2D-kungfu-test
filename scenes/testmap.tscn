@@ -449,7 +449,7 @@ tracks/0/keys = {
 "times": PoolRealArray( 0 ),
 "transitions": PoolRealArray( 1 ),
 "update": 0,
-"values": [ Vector2( 0, -3 ) ]
+"values": [ Vector2( 6, 0 ) ]
 }
 
 [sub_resource type="Animation" id=88]
@@ -466,7 +466,7 @@ tracks/0/keys = {
 "times": PoolRealArray( 0, 0.124265, 0.168135, 0.32, 0.4 ),
 "transitions": PoolRealArray( 1, 2.21914, 2.82844, 0.535887, 1 ),
 "update": 0,
-"values": [ Vector2( 0, -6 ), Vector2( 0, -3 ), Vector2( 0, -12 ), Vector2( 0, -12 ), Vector2( 0, -6 ) ]
+"values": [ Vector2( 6, 0 ), Vector2( 3, 0 ), Vector2( 12, 0 ), Vector2( 12, 0 ), Vector2( 6, 0 ) ]
 }
 tracks/1/type = "value"
 tracks/1/path = NodePath(".:monitoring")
@@ -475,10 +475,10 @@ tracks/1/loop_wrap = true
 tracks/1/imported = false
 tracks/1/enabled = true
 tracks/1/keys = {
-"times": PoolRealArray( 0.17, 0.32 ),
-"transitions": PoolRealArray( 1, 1 ),
+"times": PoolRealArray( 0, 0.17, 0.32 ),
+"transitions": PoolRealArray( 1, 1, 1 ),
 "update": 1,
-"values": [ true, false ]
+"values": [ false, true, false ]
 }
 tracks/2/type = "method"
 tracks/2/path = NodePath("..")
@@ -524,23 +524,24 @@ font_data = ExtResource( 8 )
 
 [node name="Node2D" type="Node2D"]
 
-[node name="FloorTileMap" type="TileMap" parent="."]
+[node name="FloorTileMap" type="TileMap" parent="." groups=["world"]]
 tile_set = SubResource( 22 )
 cell_size = Vector2( 16, 16 )
 format = 1
 tile_data = PoolIntArray( 0, 5, 0, 5, 5, 0, 6, 5, 2, 7, 5, 2, 8, 5, 3, 9, 5, 3, 65536, 5, 1, 65537, 5, 4, 65538, 5, 0, 65539, 5, 3, 65540, 5, 65539, 65541, 5, 65540, 65542, 5, 0, 65543, 5, 0, 65544, 5, 4, 65545, 5, 1, 131073, 5, 2, 131074, 5, 65537, 131075, 5, 2, 131076, 5, 1, 131077, 5, 0, 131078, 5, 3, 131079, 5, 0, 131080, 5, 65538, 131081, 5, 0, 196609, 5, 3, 196610, 5, 2, 196611, 5, 3, 196612, 5, 65537, 196613, 5, 65536, 196614, 5, 4, 196615, 5, 0, 196616, 5, 4, 196617, 5, 0, 262145, 5, 4, 262146, 5, 0, 262147, 5, 0, 262148, 5, 0, 262149, 5, 65540, 262150, 5, 4, 262151, 5, 1, 262152, 5, 4, 262153, 5, 4, 327681, 5, 4, 327682, 5, 2, 327683, 5, 3, 327684, 5, 0, 327685, 5, 4, 327686, 5, 65536, 327687, 5, 4, 327688, 5, 1, 327689, 5, 65537, 393217, 5, 0, 393218, 5, 1, 393219, 5, 0, 393220, 5, 2, 393221, 5, 1, 393222, 5, 3, 393223, 5, 4, 393224, 5, 3, 393225, 5, 1, 458752, 5, 1, 458753, 5, 2, 458754, 5, 4, 458755, 5, 65539, 458756, 5, 1, 458757, 5, 4, 458758, 5, 65539, 458759, 5, 0, 458760, 5, 0, 458761, 5, 65536, 524288, 5, 65536, 524289, 5, 1, 524290, 5, 0, 524291, 5, 2, 524292, 5, 65537, 524293, 5, 65537, 524294, 5, 65540, 524295, 5, 0, 524296, 5, 1, 524297, 5, 4 )
 
-[node name="WallTileMap" type="TileMap" parent="."]
+[node name="WallTileMap" type="TileMap" parent="." groups=["world"]]
 tile_set = SubResource( 22 )
 cell_size = Vector2( 16, 16 )
 cell_tile_origin = 1
+collision_friction = 0.0
 format = 1
 tile_data = PoolIntArray( 0, 0, 4, 1, 0, 2, 2, 0, 2, 3, 0, 2, 4, 0, 2, 5, 0, 2, 6, 0, 2, 7, 0, 2, 8, 0, 2, 9, 0, 5, 65536, 0, 65539, 65537, 0, 262145, 65538, 0, 262145, 65539, 0, 262145, 65540, 0, 262145, 65541, 0, 262145, 65542, 0, 262145, 65543, 0, 262145, 65544, 0, 262145, 65545, 0, 65539, 131072, 0, 65539, 131081, 0, 65539, 196608, 0, 65539, 196610, 0, 65537, 196617, 0, 65539, 262144, 0, 65539, 262146, 0, 262147, 262151, 0, 65537, 262153, 0, 65539, 327680, 0, 65539, 327687, 0, 262147, 327689, 0, 65539, 393216, 0, 65539, 393225, 0, 65539, 458752, 0, 65540, 458753, 0, 2, 458754, 0, 2, 458755, 0, 3, 458758, 0, 1, 458759, 0, 2, 458760, 0, 2, 458761, 0, 65541, 524288, 0, 262144, 524289, 0, 262145, 524290, 0, 262145, 524291, 0, 262146, 524294, 0, 262144, 524295, 0, 262145, 524296, 0, 262145, 524297, 0, 262146 )
 
 [node name="CanvasModulate" type="CanvasModulate" parent="."]
 color = Color( 0.84, 0.84, 0.84, 1 )
 
-[node name="PC" parent="." instance=ExtResource( 2 )]
+[node name="PC" parent="." groups=["player"] instance=ExtResource( 2 )]
 position = Vector2( 56, 89 )
 
 [node name="Camera2D" type="Camera2D" parent="PC"]
@@ -554,13 +555,14 @@ weapon = NodePath("Punch")
 script = ExtResource( 10 )
 
 [node name="PunchHit" type="Area2D" parent="PC/Attack/Punch"]
-position = Vector2( 0, -3 )
+position = Vector2( 6, 0 )
 monitoring = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="PC/Attack/Punch/PunchHit"]
 shape = SubResource( 87 )
 
 [node name="Sprite" type="Sprite" parent="PC/Attack/Punch/PunchHit"]
+rotation = 1.5708
 scale = Vector2( 0.01, 0.01 )
 texture = ExtResource( 9 )
 
@@ -569,7 +571,7 @@ root_node = NodePath("../PunchHit")
 anims/RESET = SubResource( 89 )
 anims/hit = SubResource( 88 )
 
-[node name="Foe" type="KinematicBody2D" parent="."]
+[node name="Foe" type="KinematicBody2D" parent="." groups=["enemy"]]
 position = Vector2( 72, 72 )
 script = ExtResource( 4 )
 hp = 200
@@ -579,6 +581,7 @@ texture = SubResource( 79 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Foe"]
 shape = SubResource( 80 )
+one_way_collision_margin = 0.0
 
 [node name="GUI" type="Control" parent="Foe"]
 anchor_left = 0.5

@@ -27,6 +27,8 @@ public class Creature : KinematicBody2D, IHittable
   private float _forceMoveTime = 0;
   private float _friction;
   private State _state = State.Free;
+  private AnimatedSprite _animSprite;
+  private string _currentDirSuffix = "s";
 
 
   // Called when the node enters the scene tree for the first time.
@@ -34,6 +36,7 @@ public class Creature : KinematicBody2D, IHittable
   {
     hp = maxHp;
     input = GetNodeOrNull<PlayerInput>("PlayerInput");
+    _animSprite = GetNodeOrNull<AnimatedSprite>("Body");
   }
 
   public override void _PhysicsProcess(float delta)
@@ -51,7 +54,6 @@ public class Creature : KinematicBody2D, IHittable
         Die();
       }
     }
-
     switch (_state)
     {
       case State.PassiveMoving:
@@ -76,6 +78,7 @@ public class Creature : KinematicBody2D, IHittable
           {
             _velocity = SlowDown(_velocity, delta);
           }
+
         }
         break;
       case State.ForceMoving:
@@ -95,12 +98,11 @@ public class Creature : KinematicBody2D, IHittable
         if (input != null)
         {
           _velocity = input.ComputeInput(walkSpeed);
-          // GD.Print($"input v: {_velocity}");
           MoveAndSlide(_velocity);
         }
         break;
     }
-
+    UpdateCurrentDirSuffix();
   }
   public void ForceMove(Vector2 v, float distance, bool jump = false)
   {
@@ -180,5 +182,51 @@ public class Creature : KinematicBody2D, IHittable
     Walk,
     ForceMoving,
     PassiveMoving,
+  }
+
+  private void UpdateCurrentDirSuffix()
+  {
+    var stopped = _velocity == Vector2.Zero;
+    string suffix = _currentDirSuffix;
+    string name;
+    if (!stopped && _state == State.Free)
+    {
+      var rad = _velocity.Normalized().Angle();
+      if (rad > -.25f * Mathf.Pi && rad <= .25f * Mathf.Pi)
+      {
+        suffix = "e";
+      }
+      else if (rad > -.75f * Mathf.Pi && rad <= -.25f * Mathf.Pi)
+      {
+        suffix = "n";
+      }
+      else if (rad > .75f * Mathf.Pi || rad <= -.75f * Mathf.Pi)
+      {
+        suffix = "w";
+      }
+      else
+      {
+        suffix = "s";
+      }
+      name = $"Walk-{suffix}";
+    }
+    else
+    {
+      name = $"Idle-{_currentDirSuffix}";
+    }
+    _currentDirSuffix = suffix;
+    if (_animSprite != null && name != _animSprite.Animation)
+    {
+      GD.Print($"playing: {name}");
+      _animSprite.Play(name);
+    }
+  }
+
+  public void PlayAnimation(string name, bool withSuffix)
+  {
+    var anim = GetNode<AnimationPlayer>("Anim");
+    if (anim == null) return;
+    string animName = name + (withSuffix ? $"-{_currentDirSuffix}" : "");
+    anim.Play(animName);
   }
 }

@@ -36,7 +36,8 @@ public class Punch : Node2D, IWeapon
 
   public void OnBodyEntered(Node body)
   {
-    if (body is IHittable)
+    GD.Print($"body {body.Name}, owner {_owner.Name}");
+    if (body is IHittable && body != pc && body.IsInGroup("enemy"))
     {
       (body as IHittable).OnHit(GlobalPosition, power);
     }

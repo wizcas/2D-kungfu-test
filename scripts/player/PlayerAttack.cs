@@ -15,8 +15,6 @@ public class PlayerAttack : Node2D
   private IWeapon _weapon;
   private ulong _nextAttackTime = 0;
 
-  private HashSet<ulong> _targets = new HashSet<ulong>();
-
   public override void _Ready()
   {
     Input.MouseMode = Input.MouseModeEnum.Confined;
@@ -36,12 +34,7 @@ public class PlayerAttack : Node2D
 
   private void Attack(Vector2 dir)
   {
-    if (!(_weapon is IWeapon))
-    {
-      GD.PrintErr($"not an IAttack", _weapon, weapon);
-      return;
-    }
-
+    GetNode<Creature>("..").PlayAnimation("punch", true);
     if (OS.GetTicksMsec() >= _nextAttackTime)
     {
       _nextAttackTime = OS.GetTicksMsec() + (ulong)Mathf.CeilToInt(cd * 1000);
@@ -53,6 +46,6 @@ public class PlayerAttack : Node2D
   {
     var node = _weapon as Node2D;
     if (node == null) return;
-    node.Rotation = dir.Angle() + Mathf.Pi / 2;
+    node.Rotation = dir.Angle();
   }
 }
