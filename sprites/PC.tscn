@@ -1,10 +1,12 @@
-[gd_scene load_steps=32 format=2]
+[gd_scene load_steps=34 format=2]
 
 [ext_resource path="res://scripts/player/PlayerInput.cs" type="Script" id=1]
 [ext_resource path="res://resources/roguelikeChar_transparent.png" type="Texture" id=2]
 [ext_resource path="res://resources/light.png" type="Texture" id=3]
-[ext_resource path="res://scripts/actors/Creature.cs" type="Script" id=4]
+[ext_resource path="res://scripts/player/Player.cs" type="Script" id=4]
 [ext_resource path="res://resources/Basic Charakter Spritesheet.png" type="Texture" id=5]
+[ext_resource path="res://sprites/weapons/Punch.tscn" type="PackedScene" id=6]
+[ext_resource path="res://scripts/player/PlayerAttack.cs" type="Script" id=7]
 
 [sub_resource type="AtlasTexture" id=48]
 atlas = ExtResource( 2 )
@@ -258,6 +260,7 @@ texture = SubResource( 48 )
 scale = Vector2( 1.2, 1.2 )
 frames = SubResource( 56 )
 animation = "Idle-e"
+frame = 1
 playing = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
@@ -282,5 +285,14 @@ anims/punch-n = SubResource( 71 )
 anims/punch-s = SubResource( 53 )
 anims/punch-w = SubResource( 72 )
 
+[node name="Attack" type="Node2D" parent="."]
+script = ExtResource( 7 )
+weapon = NodePath("Punch")
+
+[node name="Punch" parent="Attack" instance=ExtResource( 6 )]
+
 [node name="PlayerInput" type="Node2D" parent="."]
 script = ExtResource( 1 )
+
+[node name="Camera2D" type="Camera2D" parent="."]
+current = true

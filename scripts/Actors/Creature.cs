@@ -3,11 +3,12 @@ using Godot;
 
 public class Creature : KinematicBody2D, IHittable
 {
-  enum State
+  public enum State
   {
     Free,
     ForceMoving,
     PassiveMoving,
+    Holding,
     Dead,
   }
 
@@ -28,19 +29,19 @@ public class Creature : KinematicBody2D, IHittable
   }
   [Export]
   public float WalkSpeed = 64;
-  public PlayerInput PlayerInput;
   public Vector2 LookDir = Vector2.Zero;
 
-  private int _hp = 0;
-  private Vector2 _velocity = Vector2.Zero;
+  protected int _hp = 0;
+  protected State _state = State.Free;
+  protected Vector2 _velocity = Vector2.Zero;
   private float _forceMoveTime = 0;
   private float _friction;
-  private State _state = State.Free;
   private AnimatedSprite _animSprite;
   private string _dirSuffix = Directions.Suffix.S;
   private string _spriteAnimName = "Idle";
+  private float _holdTime = 0;
 
-  private AnimationPlayer _Animator
+  private AnimationPlayer _animator
   {
     get
     {
@@ -53,20 +54,11 @@ public class Creature : KinematicBody2D, IHittable
   public override void _Ready()
   {
     hp = maxHp;
-    PlayerInput = GetNodeOrNull<PlayerInput>("PlayerInput");
-    if (PlayerInput != null)
-    {
-      PlayerInput.Connect(nameof(PlayerInput.LookToDirection), this, nameof(OnLookToDirection));
-    }
     _animSprite = GetNodeOrNull<AnimatedSprite>("Body");
   }
 
   public override void _PhysicsProcess(float delta)
   {
-    if (PlayerInput != null)
-    {
-      PlayerInput.Enabled = _state == State.Free;
-    }
     ZIndex = (int)Position.y;
 
     if (_velocity.LengthSquared() <= 0)
@@ -76,8 +68,21 @@ public class Creature : KinematicBody2D, IHittable
         Die();
       }
     }
+
     switch (_state)
     {
+      case State.Holding:
+        if (_holdTime > 0)
+        {
+          _velocity = Vector2.Zero;
+          _holdTime -= delta;
+        }
+        else
+        {
+          _state = State.Free;
+          _holdTime = 0;
+        }
+        break;
       case State.PassiveMoving:
         GD.Print($"passive moving: {_velocity} ({_velocity.LengthSquared()})");
         if (_velocity.LengthSquared() < 1)
@@ -115,13 +120,6 @@ public class Creature : KinematicBody2D, IHittable
           _velocity = Vector2.Zero;
         }
         break;
-      case State.Free:
-        if (PlayerInput != null)
-        {
-          _velocity = PlayerInput.ComputeInput(WalkSpeed);
-          MoveAndSlide(_velocity);
-        }
-        break;
     }
 
     if (_velocity == Vector2.Zero)
@@ -133,9 +131,15 @@ public class Creature : KinematicBody2D, IHittable
       _spriteAnimName = "Walk";
     }
 
-    UpdateCurrentDirSuffix();
-    UpdateSpriteAnimation();
+    PlaySpriteAnimation(_velocity == Vector2.Zero ? "Idle" : "Walk", GetDirectionSuffix());
   }
+
+  public void Hold(float time)
+  {
+    _holdTime = time;
+    _state = State.Holding;
+  }
+
   public void ForceMove(Vector2 v, float distance, bool jump = false)
   {
     _state = State.ForceMoving;
@@ -157,7 +161,7 @@ public class Creature : KinematicBody2D, IHittable
 
   private async void Jump(float time)
   {
-    var anim = _Animator;
+    var anim = _animator;
     if (anim == null) return;
 
     var upTime = anim.GetAnimation("jump-up").Length;
@@ -167,11 +171,6 @@ public class Creature : KinematicBody2D, IHittable
     anim.Play("jump-up");
     await ToSignal(GetTree().CreateTimer(time - downTime), "timeout");
     anim.Play("jump-down");
-  }
-
-  public void OnLookToDirection(Vector2 dir)
-  {
-    LookDir = dir;
   }
 
   private bool CollideWithTile(KinematicCollision2D collision)
@@ -210,31 +209,62 @@ public class Creature : KinematicBody2D, IHittable
     _state = State.Dead;
     QueueFree();
   }
-  private void UpdateCurrentDirSuffix()
+  protected string GetDirectionSuffix()
   {
     var looking = LookDir != Vector2.Zero;
     var dir = looking ? LookDir : _velocity.Normalized();
     var stopped = dir == Vector2.Zero;
+    var suffix = _dirSuffix;
     if (!stopped && _state == State.Free)
     {
       var rad = dir.Normalized().Angle();
-      _dirSuffix = Directions.ComputeSuffix(dir, !looking) ?? _dirSuffix;
+      suffix = Directions.ComputeSuffix(dir, !looking);
     }
+    return suffix ?? _dirSuffix;
   }
 
-  private void UpdateSpriteAnimation()
+  protected void PlaySpriteAnimation(string name, string suffix)
   {
-    var name = $"{_spriteAnimName}-{_dirSuffix}";
-    if (_animSprite != null && name != _animSprite.Animation)
+    var fullName = GetAnimationFullName(name, suffix);
+    _spriteAnimName = name;
+    _dirSuffix = suffix;
+    if (_animSprite != null && fullName != _animSprite.Animation)
     {
-      GD.Print($"playing: {name}");
-      _animSprite.Play(name);
+      GD.Print($"playing: {fullName}");
+      _animSprite.Play(fullName);
     }
   }
 
-  public void PlayAnimation(string name, bool withSuffix)
+  protected void PlaySelfAnimation(string name, string suffix)
   {
-    string animName = name + (withSuffix ? $"-{_dirSuffix}" : "");
-    _Animator?.Play(animName);
+    var fullName = GetAnimationFullName(name, suffix);
+    _animator.Play(fullName);
+  }
+
+  public void PlaySprite(string spriteAnimationName, bool inheritSuffix = true)
+  {
+    PlaySprite(spriteAnimationName, null, inheritSuffix);
+  }
+  public void PlaySprite(string spriteAnimationName, string suffix, bool inheritSuffix)
+  {
+    PlaySpriteAnimation(spriteAnimationName, inheritSuffix ? _dirSuffix : suffix);
+  }
+  public void PlayAnimation(string animation, bool inheritSuffix = true)
+  {
+    PlayAnimation(animation, null, inheritSuffix);
+  }
+  public void PlayAnimation(string animation, string suffix, bool inheritSuffix)
+  {
+    PlaySelfAnimation(animation, inheritSuffix ? _dirSuffix : suffix);
+  }
+  public void OnPlayerLookToDirection(Vector2 dir)
+  {
+    LookDir = dir;
+  }
+
+  private string GetAnimationFullName(string name, string suffix)
+  {
+
+    return name + (String.IsNullOrEmpty(suffix) ? "" : $"-{suffix}");
   }
 }

@@ -1,15 +1,12 @@
-[gd_scene load_steps=70 format=2]
+[gd_scene load_steps=64 format=2]
 
 [ext_resource path="res://resources/roguelikeDungeon_transparent.png" type="Texture" id=1]
 [ext_resource path="res://sprites/PC.tscn" type="PackedScene" id=2]
 [ext_resource path="res://resources/roguelikeChar_transparent.png" type="Texture" id=3]
 [ext_resource path="res://scripts/actors/Creature.cs" type="Script" id=4]
 [ext_resource path="res://scenes/wall-occluder.tres" type="OccluderPolygon2D" id=5]
-[ext_resource path="res://scripts/player/PlayerAttack.cs" type="Script" id=6]
 [ext_resource path="res://scripts/actors/CreatureGUI.cs" type="Script" id=7]
 [ext_resource path="res://resources/Merchant Copy.ttf" type="DynamicFontData" id=8]
-[ext_resource path="res://resources/fist.png" type="Texture" id=9]
-[ext_resource path="res://scripts/actors/Punch.cs" type="Script" id=10]
 
 [sub_resource type="OccluderPolygon2D" id=77]
 polygon = PoolVector2Array( 0, 0, 16, 0, 16, 16, 0, 16 )
@@ -434,67 +431,6 @@ points = PoolVector2Array( 0, 0, 16, 0, 16, 16, 0, 16 )
 5/shapes = [  ]
 5/z_index = 0
 
-[sub_resource type="CircleShape2D" id=87]
-radius = 3.0
-
-[sub_resource type="Animation" id=89]
-length = 0.001
-tracks/0/type = "value"
-tracks/0/path = NodePath(".:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/keys = {
-"times": PoolRealArray( 0 ),
-"transitions": PoolRealArray( 1 ),
-"update": 0,
-"values": [ Vector2( 6, 0 ) ]
-}
-
-[sub_resource type="Animation" id=88]
-resource_name = "hit"
-length = 0.4
-step = 0.05
-tracks/0/type = "value"
-tracks/0/path = NodePath(".:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/keys = {
-"times": PoolRealArray( 0, 0.124265, 0.168135, 0.32, 0.4 ),
-"transitions": PoolRealArray( 1, 2.21914, 2.82844, 0.535887, 1 ),
-"update": 0,
-"values": [ Vector2( 6, 0 ), Vector2( 3, 0 ), Vector2( 12, 0 ), Vector2( 12, 0 ), Vector2( 6, 0 ) ]
-}
-tracks/1/type = "value"
-tracks/1/path = NodePath(".:monitoring")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/keys = {
-"times": PoolRealArray( 0, 0.17, 0.32 ),
-"transitions": PoolRealArray( 1, 1, 1 ),
-"update": 1,
-"values": [ false, true, false ]
-}
-tracks/2/type = "method"
-tracks/2/path = NodePath("..")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/keys = {
-"times": PoolRealArray( 0.17 ),
-"transitions": PoolRealArray( 1 ),
-"values": [ {
-"args": [  ],
-"method": "Dash"
-} ]
-}
-
 [sub_resource type="AtlasTexture" id=79]
 atlas = ExtResource( 3 )
 region = Rect2( 17, 153, 16, 16 )
@@ -544,33 +480,6 @@ color = Color( 0.84, 0.84, 0.84, 1 )
 [node name="PC" parent="." groups=["player"] instance=ExtResource( 2 )]
 position = Vector2( 56, 89 )
 
-[node name="Camera2D" type="Camera2D" parent="PC"]
-current = true
-
-[node name="Attack" type="Node2D" parent="PC"]
-script = ExtResource( 6 )
-weapon = NodePath("Punch")
-
-[node name="Punch" type="Node2D" parent="PC/Attack"]
-script = ExtResource( 10 )
-
-[node name="PunchHit" type="Area2D" parent="PC/Attack/Punch"]
-position = Vector2( 6, 0 )
-monitoring = false
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="PC/Attack/Punch/PunchHit"]
-shape = SubResource( 87 )
-
-[node name="Sprite" type="Sprite" parent="PC/Attack/Punch/PunchHit"]
-rotation = 1.5708
-scale = Vector2( 0.01, 0.01 )
-texture = ExtResource( 9 )
-
-[node name="Anim" type="AnimationPlayer" parent="PC/Attack/Punch"]
-root_node = NodePath("../PunchHit")
-anims/RESET = SubResource( 89 )
-anims/hit = SubResource( 88 )
-
 [node name="Foe" type="KinematicBody2D" parent="." groups=["enemy"]]
 position = Vector2( 72, 72 )
 script = ExtResource( 4 )
@@ -616,5 +525,4 @@ text = "Bad guy"
 align = 1
 valign = 2
 
-[connection signal="body_entered" from="PC/Attack/Punch/PunchHit" to="PC/Attack/Punch" method="OnBodyEntered"]
 [connection signal="HpChanged" from="Foe" to="Foe/GUI" method="OnSelfHpChanged"]

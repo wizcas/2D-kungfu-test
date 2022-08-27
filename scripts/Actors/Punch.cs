@@ -6,23 +6,15 @@ public class Punch : Node2D, IWeapon
   public float power = 200;
 
   private AnimationPlayer _anim;
-  private Node2D _owner;
+  private Creature _owner;
   private Vector2 _dir;
-
-  private Creature pc
-  {
-    get
-    {
-      return _owner == null ? null : _owner.GetNodeOrNull<Creature>("..");
-    }
-  }
 
   public override void _Ready()
   {
     _anim = GetNode<AnimationPlayer>("Anim");
   }
 
-  public void Equip(Node2D owner)
+  public void Equip(Creature owner)
   {
     _owner = owner;
   }
@@ -31,19 +23,19 @@ public class Punch : Node2D, IWeapon
   {
     _dir = dir;
     _anim.Play("hit");
-    pc?.PlayerInput?.Hold(_anim.GetAnimation("hit").Length);
+    _owner.Hold(_anim.GetAnimation("hit").Length);
   }
 
   public void OnBodyEntered(Node body)
   {
     GD.Print($"body {body.Name}, owner {_owner.Name}");
-    if (body is IHittable && body != pc && body.IsInGroup("enemy"))
+    if (body is IHittable && body != _owner && body.IsInGroup("enemy")) // todo: fix group
     {
       (body as IHittable).OnHit(GlobalPosition, power);
     }
     else if (body is TileMap)
     {
-      pc?.ForceMove(-_dir * 2, .05f);
+      _owner?.ForceMove(-_dir * 2, .05f);
     }
   }
 

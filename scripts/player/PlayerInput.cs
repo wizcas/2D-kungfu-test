@@ -3,24 +3,26 @@ using Godot;
 public class PlayerInput : Node2D
 {
   [Signal]
-  public delegate void LookToDirection(Vector2 dir);
+  public delegate void PlayerMoving(Vector2 vector);
+  [Signal]
+  public delegate void PlayerLookToDirection(Vector2 dir);
+  [Signal]
+  public delegate void PlayerAttack(Vector2 dir);
 
   [Export]
   public bool Enabled = true;
   [Export]
   public bool FreeLook = true;
-  private Creature _pc;
-  private float _holdTime;
-  private Vector2 _prevMouseScreenPos;
+  public Vector2 LookDirection;
+  public Vector2 MovingVector;
 
-  private bool CanCompute
-  {
-    get { return Enabled && _holdTime <= 0; }
-  }
+  private Player _pc;
+  private Vector2 _prevMouseScreenPos;
 
   public override void _Ready()
   {
-    _pc = GetNodeOrNull<Creature>("..");
+    Input.MouseMode = Input.MouseModeEnum.Confined;
+    _pc = GetNodeOrNull<Player>("..");
     if (_pc == null)
     {
       Enabled = false;
@@ -28,74 +30,67 @@ public class PlayerInput : Node2D
   }
   public override void _Process(float delta)
   {
-    if (_holdTime > 0)
+    if (Enabled)
     {
-      _holdTime -= delta;
-    }
-    UpdateFreeLook();
-  }
-  public Vector2 ComputeInput(float speed)
-  {
-    var velocity = Vector2.Zero;
-    var stickVector = Input.GetVector(InputNames.MOVE_LEFT, InputNames.MOVE_RIGHT, InputNames.MOVE_UP, InputNames.MOVE_DOWN);
-    if (CanCompute)
-    {
-      if (stickVector != Vector2.Zero)
+      UpdateMove();
+      UpdateFreeLook();
+      if (Input.IsActionPressed("attack"))
       {
-        velocity = stickVector * speed;
-      }
-      else
-      {
-        if (Input.IsActionPressed(InputNames.MOVE_UP))
-        {
-          velocity.y--;
-        }
-        if (Input.IsActionPressed(InputNames.MOVE_DOWN))
-        {
-          velocity.y++;
-        }
-        if (Input.IsActionPressed(InputNames.MOVE_LEFT))
-        {
-          velocity.x--;
-        }
-        if (Input.IsActionPressed(InputNames.MOVE_RIGHT))
-        {
-          velocity.x++;
-        }
-        velocity = velocity.Normalized() * speed;
+        EmitSignal(nameof(PlayerAttack), LookDirection);
       }
     }
-    return velocity;
   }
-
-  public void Hold(float time)
+  public void UpdateMove()
   {
-    _holdTime = time;
+    var vector = Input.GetVector(InputNames.MOVE_LEFT, InputNames.MOVE_RIGHT, InputNames.MOVE_UP, InputNames.MOVE_DOWN);
+    if (vector == Vector2.Zero)
+    {
+      if (Input.IsActionPressed(InputNames.MOVE_UP))
+      {
+        vector.y--;
+      }
+      if (Input.IsActionPressed(InputNames.MOVE_DOWN))
+      {
+        vector.y++;
+      }
+      if (Input.IsActionPressed(InputNames.MOVE_LEFT))
+      {
+        vector.x--;
+      }
+      if (Input.IsActionPressed(InputNames.MOVE_RIGHT))
+      {
+        vector.x++;
+      }
+      vector = vector.Normalized();
+    }
+    MovingVector = vector;
+    EmitSignal(nameof(PlayerMoving), vector);
   }
 
   public void UpdateFreeLook()
   {
-    if (FreeLook)
+    if (!FreeLook)
     {
-      var stickVector = Input.GetVector(InputNames.LOOK_LEFT, InputNames.LOOK_RIGHT, InputNames.LOOK_UP, InputNames.LOOK_DOWN);
-      var mouseScreenPos = GetViewport().GetMousePosition();
-      Vector2 dir = Vector2.Zero;
-      if (stickVector != Vector2.Zero)
-      {
-        dir = stickVector.Normalized();
-      }
-      else if (mouseScreenPos != _prevMouseScreenPos)
-      {
-        // update mouse looking dir when mouse is moved so that
-        // it won't override game-pad looking when there's no input
-        dir = (GetGlobalMousePosition() - GlobalPosition).Normalized();
-        _prevMouseScreenPos = mouseScreenPos;
-      }
+      LookDirection = Vector2.Zero;
+      return;
+    };
 
-      if (dir != Vector2.Zero)
-      {
-        EmitSignal(nameof(LookToDirection), dir);
-      }
+    var stickVector = Input.GetVector(InputNames.LOOK_LEFT, InputNames.LOOK_RIGHT, InputNames.LOOK_UP, InputNames.LOOK_DOWN);
+    var mouseScreenPos = GetViewport().GetMousePosition();
+    Vector2 dir = LookDirection;
+    if (stickVector != Vector2.Zero)
+    {
+      dir = stickVector.Normalized();
     }
+    else if (mouseScreenPos != _prevMouseScreenPos)
+    {
+      // update mouse looking dir when mouse is moved so that
+      // it won't override game-pad looking when there's no input
+      dir = (GetGlobalMousePosition() - GlobalPosition).Normalized();
+      _prevMouseScreenPos = mouseScreenPos;
+    }
+
+    LookDirection = dir;
+    EmitSignal(nameof(PlayerLookToDirection), LookDirection);
   }
 }

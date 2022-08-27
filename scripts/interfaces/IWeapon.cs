@@ -2,6 +2,6 @@ using Godot;
 
 public interface IWeapon
 {
-  void Equip(Node2D owner);
+  void Equip(Creature owner);
   void Perform(Vector2 dir);
 }
