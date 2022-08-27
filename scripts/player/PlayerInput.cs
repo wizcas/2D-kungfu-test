@@ -8,10 +8,10 @@ public class PlayerInput : Node2D
   [Export]
   public bool Enabled = true;
   [Export]
-  public bool LookToMouse = true;
+  public bool FreeLook = true;
   private Creature _pc;
   private float _holdTime;
-
+  private Vector2 _prevMouseScreenPos;
 
   private bool CanCompute
   {
@@ -32,34 +32,38 @@ public class PlayerInput : Node2D
     {
       _holdTime -= delta;
     }
-    if (LookToMouse)
-    {
-      var dir = (GetGlobalMousePosition() - GlobalPosition).Normalized();
-      EmitSignal(nameof(LookToDirection), dir);
-    }
+    UpdateFreeLook();
   }
   public Vector2 ComputeInput(float speed)
   {
     var velocity = Vector2.Zero;
+    var stickVector = Input.GetVector(InputNames.MOVE_LEFT, InputNames.MOVE_RIGHT, InputNames.MOVE_UP, InputNames.MOVE_DOWN);
     if (CanCompute)
     {
-      if (Input.IsActionPressed(InputNames.MOVE_UP))
+      if (stickVector != Vector2.Zero)
       {
-        velocity.y--;
+        velocity = stickVector * speed;
       }
-      if (Input.IsActionPressed(InputNames.MOVE_DOWN))
+      else
       {
-        velocity.y++;
+        if (Input.IsActionPressed(InputNames.MOVE_UP))
+        {
+          velocity.y--;
+        }
+        if (Input.IsActionPressed(InputNames.MOVE_DOWN))
+        {
+          velocity.y++;
+        }
+        if (Input.IsActionPressed(InputNames.MOVE_LEFT))
+        {
+          velocity.x--;
+        }
+        if (Input.IsActionPressed(InputNames.MOVE_RIGHT))
+        {
+          velocity.x++;
+        }
+        velocity = velocity.Normalized() * speed;
       }
-      if (Input.IsActionPressed(InputNames.MOVE_LEFT))
-      {
-        velocity.x--;
-      }
-      if (Input.IsActionPressed(InputNames.MOVE_RIGHT))
-      {
-        velocity.x++;
-      }
-      velocity = velocity.Normalized() * speed;
     }
     return velocity;
   }
@@ -67,5 +71,31 @@ public class PlayerInput : Node2D
   public void Hold(float time)
   {
     _holdTime = time;
+  }
+
+  public void UpdateFreeLook()
+  {
+    if (FreeLook)
+    {
+      var stickVector = Input.GetVector(InputNames.LOOK_LEFT, InputNames.LOOK_RIGHT, InputNames.LOOK_UP, InputNames.LOOK_DOWN);
+      var mouseScreenPos = GetViewport().GetMousePosition();
+      Vector2 dir = Vector2.Zero;
+      if (stickVector != Vector2.Zero)
+      {
+        dir = stickVector.Normalized();
+      }
+      else if (mouseScreenPos != _prevMouseScreenPos)
+      {
+        // update mouse looking dir when mouse is moved so that
+        // it won't override game-pad looking when there's no input
+        dir = (GetGlobalMousePosition() - GlobalPosition).Normalized();
+        _prevMouseScreenPos = mouseScreenPos;
+      }
+
+      if (dir != Vector2.Zero)
+      {
+        EmitSignal(nameof(LookToDirection), dir);
+      }
+    }
   }
 }
