@@ -3,6 +3,22 @@ using Godot;
 
 public class Creature : KinematicBody2D, IHittable
 {
+  enum State
+  {
+    Free,
+    ForceMoving,
+    PassiveMoving,
+    Dead,
+  }
+
+  static class DirectionSuffix
+  {
+    public const string N = "n";
+    public const string S = "s";
+    public const string W = "w";
+    public const string E = "e";
+  }
+
   [Signal]
   public delegate void HpChanged(int hp, int maxHp);
 
@@ -28,7 +44,8 @@ public class Creature : KinematicBody2D, IHittable
   private float _friction;
   private State _state = State.Free;
   private AnimatedSprite _animSprite;
-  private string _currentDirSuffix = "s";
+  private string _dirSuffix = DirectionSuffix.S;
+  private string _spriteAnim = "Idle";
 
 
   // Called when the node enters the scene tree for the first time.
@@ -176,45 +193,36 @@ public class Creature : KinematicBody2D, IHittable
   {
     QueueFree();
   }
-  enum State
-  {
-    Free,
-    Walk,
-    ForceMoving,
-    PassiveMoving,
-  }
-
   private void UpdateCurrentDirSuffix()
   {
     var stopped = _velocity == Vector2.Zero;
-    string suffix = _currentDirSuffix;
     string name;
     if (!stopped && _state == State.Free)
     {
       var rad = _velocity.Normalized().Angle();
-      if (rad > -.25f * Mathf.Pi && rad <= .25f * Mathf.Pi)
+      if (rad >= -.2f * Mathf.Pi && rad <= .2f * Mathf.Pi)
       {
-        suffix = "e";
+        _dirSuffix = DirectionSuffix.E;
       }
-      else if (rad > -.75f * Mathf.Pi && rad <= -.25f * Mathf.Pi)
+      else if (rad >= -.7f * Mathf.Pi && rad <= -.3f * Mathf.Pi)
       {
-        suffix = "n";
+        _dirSuffix = DirectionSuffix.N;
       }
-      else if (rad > .75f * Mathf.Pi || rad <= -.75f * Mathf.Pi)
+      else if (rad >= .8f * Mathf.Pi || rad <= -.8f * Mathf.Pi)
       {
-        suffix = "w";
+        _dirSuffix = DirectionSuffix.W;
       }
-      else
+      else if (rad >= .3f * Mathf.Pi && rad <= .7f * Mathf.Pi)
       {
-        suffix = "s";
+        _dirSuffix = DirectionSuffix.S;
       }
-      name = $"Walk-{suffix}";
+      _spriteAnim = "Walk";
     }
     else
     {
-      name = $"Idle-{_currentDirSuffix}";
+      _spriteAnim = "Idle";
     }
-    _currentDirSuffix = suffix;
+    name = $"{_spriteAnim}-{_dirSuffix}";
     if (_animSprite != null && name != _animSprite.Animation)
     {
       GD.Print($"playing: {name}");
@@ -226,7 +234,7 @@ public class Creature : KinematicBody2D, IHittable
   {
     var anim = GetNode<AnimationPlayer>("Anim");
     if (anim == null) return;
-    string animName = name + (withSuffix ? $"-{_currentDirSuffix}" : "");
+    string animName = name + (withSuffix ? $"-{_dirSuffix}" : "");
     anim.Play(animName);
   }
 }
