@@ -32,10 +32,10 @@ public class PlayerAttack : Node2D
 
   private void Attack(Vector2 dir)
   {
-    _pc.PlayAnimation("punch");
     if (OS.GetTicksMsec() >= _nextAttackTime && _weapon != null)
     {
       _nextAttackTime = OS.GetTicksMsec() + (ulong)Mathf.CeilToInt(_weapon.GetCoolDown() * 1000);
+      _pc.PlayAnimation("punch");
       _weapon.Perform(dir);
     }
   }
