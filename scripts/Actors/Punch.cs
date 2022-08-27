@@ -31,7 +31,7 @@ public class Punch : Node2D, IWeapon
   {
     _dir = dir;
     _anim.Play("hit");
-    pc?.Input?.Hold(_anim.GetAnimation("hit").Length);
+    pc?.PlayerInput?.Hold(_anim.GetAnimation("hit").Length);
   }
 
   public void OnBodyEntered(Node body)

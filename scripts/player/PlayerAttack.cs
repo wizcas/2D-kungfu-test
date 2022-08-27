@@ -20,12 +20,11 @@ public class PlayerAttack : Node2D
     Input.MouseMode = Input.MouseModeEnum.Confined;
     _weapon = GetNode(weapon) as IWeapon;
     if (_weapon != null) _weapon.Equip(this);
+    GetNodeOrNull<PlayerInput>("../PlayerInput")?.Connect(nameof(PlayerInput.LookToDirection), this, nameof(OnLookToDirection));
   }
   public override void _Process(float delta)
   {
     var dir = (GetGlobalMousePosition() - GlobalPosition).Normalized();
-
-    UpdateAttackDir(dir);
     if (Input.IsActionPressed("attack"))
     {
       Attack(dir);
@@ -42,11 +41,10 @@ public class PlayerAttack : Node2D
     }
   }
 
-  private void UpdateAttackDir(Vector2 dir)
+  public void OnLookToDirection(Vector2 dir)
   {
     var node = _weapon as Node2D;
     if (node == null) return;
     node.Rotation = dir.Angle();
-    GetNode<Creature>("..").LookDir = dir;
   }
 }

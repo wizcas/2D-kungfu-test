@@ -258,6 +258,7 @@ texture = SubResource( 48 )
 scale = Vector2( 1.2, 1.2 )
 frames = SubResource( 56 )
 animation = "Idle-e"
+frame = 1
 playing = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
@@ -282,5 +283,5 @@ anims/punch-n = SubResource( 71 )
 anims/punch-s = SubResource( 53 )
 anims/punch-w = SubResource( 72 )
 
-[node name="PlayerInput" type="Node" parent="."]
+[node name="PlayerInput" type="Node2D" parent="."]
 script = ExtResource( 1 )

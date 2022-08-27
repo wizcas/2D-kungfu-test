@@ -1,9 +1,14 @@
 using Godot;
 
-public class PlayerInput : Node
+public class PlayerInput : Node2D
 {
+  [Signal]
+  public delegate void LookToDirection(Vector2 dir);
+
   [Export]
   public bool Enabled = true;
+  [Export]
+  public bool LookToMouse = true;
   private Creature _pc;
   private float _holdTime;
 
@@ -26,6 +31,11 @@ public class PlayerInput : Node
     if (_holdTime > 0)
     {
       _holdTime -= delta;
+    }
+    if (LookToMouse)
+    {
+      var dir = (GetGlobalMousePosition() - GlobalPosition).Normalized();
+      EmitSignal(nameof(LookToDirection), dir);
     }
   }
   public Vector2 ComputeInput(float speed)

@@ -28,7 +28,7 @@ public class Creature : KinematicBody2D, IHittable
   }
   [Export]
   public float WalkSpeed = 64;
-  public PlayerInput Input;
+  public PlayerInput PlayerInput;
   public Vector2 LookDir = Vector2.Zero;
 
   private int _hp = 0;
@@ -40,20 +40,32 @@ public class Creature : KinematicBody2D, IHittable
   private string _dirSuffix = Directions.Suffix.S;
   private string _spriteAnimName = "Idle";
 
+  private AnimationPlayer _Animator
+  {
+    get
+    {
+      return GetNodeOrNull<AnimationPlayer>("Anim");
+    }
+  }
+
 
   // Called when the node enters the scene tree for the first time.
   public override void _Ready()
   {
     hp = maxHp;
-    Input = GetNodeOrNull<PlayerInput>("PlayerInput");
+    PlayerInput = GetNodeOrNull<PlayerInput>("PlayerInput");
+    if (PlayerInput != null)
+    {
+      PlayerInput.Connect(nameof(PlayerInput.LookToDirection), this, nameof(OnLookToDirection));
+    }
     _animSprite = GetNodeOrNull<AnimatedSprite>("Body");
   }
 
   public override void _PhysicsProcess(float delta)
   {
-    if (Input != null)
+    if (PlayerInput != null)
     {
-      Input.Enabled = _state == State.Free;
+      PlayerInput.Enabled = _state == State.Free;
     }
     ZIndex = (int)Position.y;
 
@@ -104,9 +116,9 @@ public class Creature : KinematicBody2D, IHittable
         }
         break;
       case State.Free:
-        if (Input != null)
+        if (PlayerInput != null)
         {
-          _velocity = Input.ComputeInput(WalkSpeed);
+          _velocity = PlayerInput.ComputeInput(WalkSpeed);
           MoveAndSlide(_velocity);
         }
         break;
@@ -143,22 +155,23 @@ public class Creature : KinematicBody2D, IHittable
     _velocity = v;
   }
 
-  private void Jump(float time)
+  private async void Jump(float time)
   {
-    var anim = GetNode<AnimationPlayer>("Anim");
+    var anim = _Animator;
     if (anim == null) return;
+
     var upTime = anim.GetAnimation("jump-up").Length;
     var downTime = anim.GetAnimation("jump-down").Length;
     if (time < upTime + downTime) return;
 
     anim.Play("jump-up");
-    GetTree().CreateTimer(time - downTime).Connect("timeout", this, nameof(OnJumpDown));
-  }
-  private void OnJumpDown()
-  {
-    var anim = GetNode<AnimationPlayer>("Anim");
-    if (anim == null) return;
+    await ToSignal(GetTree().CreateTimer(time - downTime), "timeout");
     anim.Play("jump-down");
+  }
+
+  public void OnLookToDirection(Vector2 dir)
+  {
+    LookDir = dir;
   }
 
   private bool CollideWithTile(KinematicCollision2D collision)
@@ -221,9 +234,7 @@ public class Creature : KinematicBody2D, IHittable
 
   public void PlayAnimation(string name, bool withSuffix)
   {
-    var anim = GetNode<AnimationPlayer>("Anim");
-    if (anim == null) return;
     string animName = name + (withSuffix ? $"-{_dirSuffix}" : "");
-    anim.Play(animName);
+    _Animator?.Play(animName);
   }
 }
