@@ -8,6 +8,8 @@ public class PlayerInput : Node2D
   public delegate void PlayerLookToDirection(Vector2 dir);
   [Signal]
   public delegate void PlayerAttack(Vector2 dir);
+  [Signal]
+  public delegate void PlayerCycleWeapon(int delta);
 
   [Export]
   public bool Enabled = true;
@@ -34,12 +36,40 @@ public class PlayerInput : Node2D
     {
       UpdateMove();
       UpdateFreeLook();
-      if (Input.IsActionPressed("attack"))
+      if (Input.IsActionJustPressed(InputNames.PREV_WEAPON))
+      {
+        EmitSignal(nameof(PlayerCycleWeapon), -1);
+      }
+      if (Input.IsActionJustPressed(InputNames.NEXT_WEAPON))
+      {
+        EmitSignal(nameof(PlayerCycleWeapon), 1);
+      }
+      if (Input.IsActionPressed(InputNames.ATTACK))
       {
         EmitSignal(nameof(PlayerAttack), LookDirection);
       }
     }
   }
+
+  public override void _UnhandledInput(InputEvent e)
+  {
+    if (e is InputEventMouseButton)
+    {
+      var mouseEvent = e as InputEventMouseButton;
+      if (mouseEvent.IsPressed())
+      {
+        if (mouseEvent.ButtonIndex == (int)ButtonList.WheelUp)
+        {
+          EmitSignal(nameof(PlayerCycleWeapon), -1);
+        }
+        if (mouseEvent.ButtonIndex == (int)ButtonList.WheelDown)
+        {
+          EmitSignal(nameof(PlayerCycleWeapon), 1);
+        }
+      }
+    }
+  }
+
   public void UpdateMove()
   {
     var vector = Input.GetVector(InputNames.MOVE_LEFT, InputNames.MOVE_RIGHT, InputNames.MOVE_UP, InputNames.MOVE_DOWN);

@@ -8,4 +8,7 @@ public static class InputNames
   public const string LOOK_DOWN = "look_down";
   public const string LOOK_LEFT = "look_left";
   public const string LOOK_RIGHT = "look_right";
+  public const string ATTACK = "attack";
+  public const string PREV_WEAPON = "prev_weapon";
+  public const string NEXT_WEAPON = "next_weapon";
 }

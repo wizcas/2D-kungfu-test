@@ -1,8 +1,10 @@
+using System.Threading.Tasks;
 using Godot;
 
 public interface IWeapon
 {
   float GetCoolDown();
-  void Equip(Creature owner);
-  void Perform(Vector2 dir);
+  Task Equip(Creature owner);
+  Task Remove();
+  Task Perform(Vector2 dir);
 }

@@ -453,7 +453,7 @@ gradient = SubResource( 84 )
 width = 16
 
 [sub_resource type="DynamicFont" id=86]
-size = 8
+size = 10
 outline_size = 1
 outline_color = Color( 0, 0, 0, 0.560784 )
 font_data = ExtResource( 8 )

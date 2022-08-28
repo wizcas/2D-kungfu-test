@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Godot;
 
 public class Dart : Node2D, IWeapon, IProjectileLauncher
@@ -19,10 +20,17 @@ public class Dart : Node2D, IWeapon, IProjectileLauncher
     _muzzle = GetNode<Node2D>(Muzzle);
   }
 
-  public void Equip(Creature owner)
+  public Task Equip(Creature owner)
   {
     _owner = owner;
     Prepare();
+    return Task.CompletedTask;
+  }
+
+  public Task Remove()
+  {
+    QueueFree();
+    return Task.CompletedTask;
   }
 
   public void Prepare()
@@ -33,11 +41,12 @@ public class Dart : Node2D, IWeapon, IProjectileLauncher
     _projectile.Position = _muzzle.Position;
   }
 
-  public void Perform(Vector2 dir)
+  public async Task Perform(Vector2 dir)
   {
     if (_projectile == null) return;
     _projectile.Shoot(this, dir);
     _projectile = null;
+    await ToSignal(GetTree().CreateTimer(.5f), "timeout");
     Prepare();
   }
 

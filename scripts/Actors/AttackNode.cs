@@ -1,9 +1,12 @@
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Godot;
 
 public class AttackNode : Node2D
 {
   protected Creature _owner;
   protected IWeapon _weapon;
+  protected HashSet<IWeapon> _arsenal = new HashSet<IWeapon>();
   private ulong _nextAttackTime = 0;
 
   public override void _Ready()
@@ -11,14 +14,18 @@ public class AttackNode : Node2D
 
   }
 
-  public void Prepare(Creature owner, IWeapon weapon)
+  public async void Prepare(Creature owner, IWeapon weapon)
   {
     _owner = owner;
     _weapon = weapon;
 
-    if (_owner != null && _weapon != null)
+    if (owner != null && weapon != null)
     {
-      _weapon.Equip(_owner);
+      if (!_arsenal.Contains(weapon))
+      {
+        _arsenal.Add(weapon);
+      }
+      await weapon.Equip(_owner);
     }
   }
 

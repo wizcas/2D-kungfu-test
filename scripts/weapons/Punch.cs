@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Godot;
 
 public class Punch : Node2D, IWeapon
@@ -16,16 +17,24 @@ public class Punch : Node2D, IWeapon
     _anim = GetNode<AnimationPlayer>("Anim");
   }
 
-  public void Equip(Creature owner)
+  public Task Equip(Creature owner)
   {
     _owner = owner;
+    return Task.CompletedTask;
   }
 
-  public void Perform(Vector2 dir)
+  public Task Remove()
+  {
+    QueueFree();
+    return Task.CompletedTask;
+  }
+
+  public Task Perform(Vector2 dir)
   {
     _dir = dir;
     _anim.Play("hit");
     _owner.Hold(_anim.GetAnimation("hit").Length);
+    return Task.CompletedTask;
   }
 
   public void OnBodyEntered(Node body)

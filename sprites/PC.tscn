@@ -243,13 +243,7 @@ anims/punch-w = SubResource( 72 )
 
 [node name="Attack" type="Node2D" parent="."]
 script = ExtResource( 7 )
-Weapon = NodePath("Dart")
-
-[node name="Punch" parent="Attack" instance=ExtResource( 6 )]
-visible = false
-
-[node name="Dart" parent="Attack" instance=ExtResource( 8 )]
-visible = true
+Arsenal = [ ExtResource( 6 ), ExtResource( 8 ) ]
 
 [node name="PlayerInput" type="Node2D" parent="."]
 script = ExtResource( 1 )
