@@ -85,7 +85,7 @@ public class Creature : KinematicBody2D, IHittable
         break;
       case State.PassiveMoving:
         GD.Print($"passive moving: {_velocity} ({_velocity.LengthSquared()})");
-        if (_velocity.LengthSquared() < 1)
+        if (_velocity.LengthSquared() < 2)
         {
           _state = State.Free;
           _velocity = Vector2.Zero;
@@ -99,11 +99,13 @@ public class Creature : KinematicBody2D, IHittable
             {
               var speed = Mathf.Clamp(_velocity.Length() - 32, 4, 32); // TODO absorb amount
               _velocity = _velocity.Normalized().Bounce(c.Normal) * speed;
+              GD.Print("collided ", _velocity);
             }
           }
           else
           {
             _velocity = SlowDown(_velocity, delta);
+            GD.Print("slowed down: ", _velocity);
           }
         }
         break;

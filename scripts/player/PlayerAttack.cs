@@ -2,41 +2,30 @@ using System;
 using System.Collections.Generic;
 using Godot;
 
-public class PlayerAttack : Node2D
+public class PlayerAttack : AttackNode
 {
   [Export]
   public NodePath Weapon;
 
-  private Player _pc;
-  private IWeapon _weapon;
   private ulong _nextAttackTime = 0;
+
+  private Player PC => _owner as Player;
 
   public override void _Ready()
   {
-    _weapon = GetNode(Weapon) as IWeapon;
 
   }
   public override void _Process(float delta)
   {
-    if (_pc == null)
+    if (PC == null)
     {
-      _pc = GetNodeOrNull<Player>("..");
-      if (_pc != null && _pc.PlayerInput != null)
+      var pc = GetNodeOrNull<Player>("..");
+      if (pc != null && pc.PlayerInput != null)
       {
-        _pc.PlayerInput.Connect(nameof(PlayerInput.PlayerLookToDirection), this, nameof(OnPlayerLookToDirection));
-        _pc.PlayerInput.Connect(nameof(PlayerInput.PlayerAttack), this, nameof(Attack));
-        _weapon?.Equip(_pc);
+        pc.PlayerInput.Connect(nameof(PlayerInput.PlayerLookToDirection), this, nameof(OnPlayerLookToDirection));
+        pc.PlayerInput.Connect(nameof(PlayerInput.PlayerAttack), this, nameof(Attack));
+        Prepare(pc, GetNode(Weapon) as IWeapon);
       }
-    }
-  }
-
-  private void Attack(Vector2 dir)
-  {
-    if (OS.GetTicksMsec() >= _nextAttackTime && _weapon != null)
-    {
-      _nextAttackTime = OS.GetTicksMsec() + (ulong)Mathf.CeilToInt(_weapon.GetCoolDown() * 1000);
-      _pc.PlayAnimation("punch");
-      _weapon.Perform(dir);
     }
   }
 
@@ -46,9 +35,4 @@ public class PlayerAttack : Node2D
     if (node == null) return;
     node.Rotation = dir.Angle();
   }
-  private void OnPlayerAttack(Vector2 dir)
-  {
-    Attack(dir);
-  }
-
 }
