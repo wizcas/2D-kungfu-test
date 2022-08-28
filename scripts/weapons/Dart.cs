@@ -8,16 +8,37 @@ public class Dart : Node2D, IWeapon, IProjectileLauncher
   public PackedScene Projectile;
   [Export]
   public float CD = .7f;
-  [Export]
-  public NodePath Muzzle;
 
   private Creature _owner;
   private Projectile _projectile;
   private Node2D _muzzle;
+  private RayCast2D _indicator;
+
+  private float _distance = -1;
+  [Export]
+  public float Distance
+  {
+    get { return _distance < 0 ? GetViewport().Size.x : _distance; }
+    set
+    {
+      _distance = value;
+      if (_indicator != null)
+      {
+        _indicator.CastTo = new Vector2(Distance, 0);
+      }
+    }
+  }
 
   public override void _Ready()
   {
-    _muzzle = GetNode<Node2D>(Muzzle);
+    _muzzle = GetNode<Node2D>("Muzzle");
+    _indicator = _muzzle.GetNode<RayCast2D>("Indicator");
+    Distance = Distance; // make sure the distance is valid
+  }
+
+  public override void _Process(float delta)
+  {
+    UpdateIndicator();
   }
 
   public Task Equip(Creature owner)
@@ -53,5 +74,19 @@ public class Dart : Node2D, IWeapon, IProjectileLauncher
   public float GetCoolDown()
   {
     return CD;
+  }
+
+  public void UpdateIndicator()
+  {
+    if (_indicator == null) return;
+    var line = _indicator.GetNode<Line2D>("Line");
+    if (line == null) return;
+
+    var endPos = line.ToLocal(_indicator.ToGlobal(_indicator.CastTo));
+    if (_indicator.IsColliding())
+    {
+      endPos = line.ToLocal(_indicator.GetCollisionPoint());
+    }
+    line.Points = new Vector2[] { Vector2.Zero, endPos };
   }
 }
